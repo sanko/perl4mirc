@@ -1,2 +1,8 @@
 Makefile.win
+
+libperl4mirc.a
+libperl4mirc.def
+perl4mirc.dll
+perl4mirc.o
+
 perl/*
