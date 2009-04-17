@@ -1,0 +1,39 @@
+Version 0.9.600 (29 Nov 2008)
+http://sankorobinson.com/
+
+ Internal changes:
+  - (undocumented) perl4mIRC.pm is now external for hacking, easy updates
+  - (undocumented) perl4mIRC.dll retains basic functionality (perl eval, etc.) without Win32::API (print to mIRC window, mIRC exec, eval, etc.)
+  - (undocumented) Building should be a little easier
+
+Version 0.9.501 (29 Jan 2008)
+http://sankorobinson.com/
+
+ Internal changes:
+  - Fix magic object in eval_embed
+  - Fix line directives in eval_embed and eval_string
+  - Fix chopped evaluate and execute commands
+  - Makeshift fix for strange race condition in eval and exec commands that
+    would lead to crash
+
+Version 0.9.500 (29 Jan 2008)
+http://sankorobinson.com/
+
+ General/Interface changes:
+  - FIX: New message and auto-unload (rather than mysterious death) when
+    Win32::API is not installed.
+
+ Internal changes:
+  - Catches missing Win32::API requirement w/o ruining the interpreter
+    by running an eval_sv.
+
+Version 0.9.008 (23 Nov 2007)
+http://sankorobinson.com/?p=1195847788.76563
+
+ General/Interface changes:
+  - First public release
+
+ Internal changes:
+  - dropped custom XS module in favor of Win32::API with DLL calls.
+
+$Id: CHANGES.txt 4 2008-12-05 05:12:08Z sanko@cpan.org $
