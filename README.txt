@@ -2,7 +2,7 @@ AUTHOR & WEBSITE
 
 	The software provided was written by Sanko Robinson.
 
-	Please visit http://sanko.googlecode.com/ for updates.
+	Please visit http://github.com/sanko/perl4mirc/ for updates.
 
 DESCRIPTION
 
@@ -88,7 +88,7 @@ RELEASE INFORMATION
 
 	See CHANGES.txt
 
-	For future updates, check http://sanko.googlecode.com/
+	For future updates, check http://github.com/sanko/perl4mirc/
 
 LICENSES
 

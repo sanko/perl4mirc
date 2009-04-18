@@ -203,7 +203,7 @@ This module requires L<Win32::API> be installed.
 
 =head1 See Also
 
-Project page - http://sanko.googlecode.com/
+Project page - http://github.com/sanko/perl4mirc/
 
 mIRC - http://mirc.co.uk/
 
