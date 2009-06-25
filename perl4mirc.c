@@ -2,7 +2,7 @@
 #include "perl.h"
 #include "patchlevel.h"   /* for local_patches */
 
-char* VERSION = "0.9_600";
+char* VERSION = "0.999.700";
 
 typedef struct {
     short major;
@@ -33,6 +33,64 @@ EXTERN_C void xs_init( pTHX ) {
     newXS( "Win32CORE::bootstrap", boot_Win32CORE, file );
 }
 
+int execute_perl( const char *function, char **args, char *data ) {
+    int count = 0, i, ret_value = 1;
+    STRLEN na;
+    SV *sv_args[0];
+    dSP;
+    PERL_SET_CONTEXT( my_perl );
+    /*
+     * Set up the perl environment, push arguments onto the
+     * perl stack, then call the given function
+     */
+    SPAGAIN;
+    ENTER;
+    SAVETMPS;
+    PUSHMARK( sp );
+    for ( i = 0; i < ( int )sizeof( args ) - 1; i++ ) {
+        if ( args[i] != NULL ) {
+            sv_args[i] = sv_2mortal( newSVpv( args[i], 0 ) );
+            XPUSHs( sv_args[i] );
+        }
+    }
+    PUTBACK;
+    PERL_SET_CONTEXT( my_perl );
+    count = call_pv( function, G_EVAL | G_SCALAR );
+    SPAGAIN;
+    /*
+     * Check for "die," make sure we have 1 argument, and set our
+     * return value.
+     */
+    if ( SvTRUE( ERRSV ) ) {
+        sprintf( data,
+                 "%sPerl function (%s) exited abnormally: %s",
+                 ( loaded ? "ERR " : "" ), function, SvPV( ERRSV, na ) );
+        ( void )POPs;
+    }
+    else if ( count != 1 ) {
+        /*
+         * This should NEVER happen.  G_SCALAR ensures that we WILL
+         * have 1 parameter.
+         */
+        sprintf( data,
+                 "%sPerl error executing '%s': expected 1 return value; received %s",
+                 ( loaded ? "ERR " : "" ), function, count );
+    }
+    else {
+        sprintf( data, "%s%s", ( loaded ? "OK " : "" ), POPpx );
+    }
+    /* Check for changed arguments */
+    for ( i = 0; i < ( int )sizeof( args ) - 1; i++ ) {
+        if ( args[i] && strcmp( args[i], SvPVX( sv_args[i] ) ) ) {
+            args[i] = strdup( SvPV( sv_args[i], na ) );
+        }
+    }
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+    return ret_value;
+}
+
 // Get everything going...
 int __declspec( dllexport ) __stdcall LoadDll( LOADINFO *mIRC ) {
     if ( my_perl == NULL ) {
@@ -46,7 +104,8 @@ int __declspec( dllexport ) __stdcall LoadDll( LOADINFO *mIRC ) {
             char *perl_args[] = { "", "-e", "", "0", "", "-w" };
             PERL_SYS_INIT3( NULL, NULL, NULL );
             if ( ( my_perl = perl_alloc() ) == NULL ) {
-                MessageBox( 0, "No memory!", "Cannot load DLL!" , MB_ICONSTOP );
+                MessageBox( 0, "No memory!",
+                            "Cannot load DLL!" , MB_ICONSTOP );
                 mIRC->mKeep = FALSE;
                 return 0;
             }
@@ -54,12 +113,27 @@ int __declspec( dllexport ) __stdcall LoadDll( LOADINFO *mIRC ) {
             perl_parse( my_perl, xs_init, 6, perl_args, NULL );
             PL_exit_flags |= PERL_EXIT_DESTRUCT_END;
             perl_run( my_perl );
-            if ( require_win32api() == 1 ) {
-                SV* result = eval_pv( "*perl4mIRC::eval_string = sub {eval shift};require perl4mIRC;", FALSE );
+
+            // make sure W::A is actually installed
+            SV* result = eval_pv( "require Win32::API;", FALSE );
+            if ( ! SvTRUE( ERRSV ) ) {
+                SV* result = eval_pv(
+                                 "use FindBin;"
+                                 "use lib qq[$FindBin::Bin/lib];"
+                                 "use lib qq[$FindBin::Bin/perl];"
+                                 "perl4mIRC->import() if eval 'require perl4mIRC';",
+                                 FALSE );
             }
             else {
-                SV* result = eval_pv( "*perl4mIRC::eval_string = sub {eval shift};", FALSE );
+                // MessageBox( 0, "Please install Win32::API from CPAN. See Readme.txt for more.",
+                //        "Missing dependancy!" , MB_ICONSTOP );
+                SV* result = eval_pv(
+                                 "*perl4mIRC::eval_string = sub {eval shift};",
+                                 FALSE );
+                // TODO: let the user know that things have gone wrong without
+                //       being too disruptive
             }
+
             if ( SvTRUE( ERRSV ) )
                 loaded = FALSE;
             else
@@ -101,7 +175,8 @@ int __declspec( dllexport ) __stdcall version (
     char *data, char *parms,
     BOOL print,  BOOL nopause
 ) {
-    sprintf( data, "perl4mIRC v%s by Sanko Robinson <sanko@cpan.org>", VERSION );
+    sprintf(
+        data, "perl4mIRC v%s by Sanko Robinson <sanko@cpan.org>", VERSION );
     return 3;
 }
 
@@ -153,69 +228,6 @@ int __declspec( dllexport ) __stdcall perl_eval_string (
      */
 }
 
-int execute_perl( const char *function, char **args, char *data ) {
-    int count = 0, i, ret_value = 1;
-    STRLEN na;
-    SV *sv_args[0];
-    dSP;
-    PERL_SET_CONTEXT( my_perl );
-    /*
-     * Set up the perl environment, push arguments onto the
-     * perl stack, then call the given function
-     */
-    SPAGAIN;
-    ENTER;
-    SAVETMPS;
-    PUSHMARK( sp );
-    for ( i = 0; i < sizeof( args ) - 1; i++ ) {
-        if ( args[i] != NULL ) {
-            sv_args[i] = sv_2mortal( newSVpv( args[i], 0 ) );
-            XPUSHs( sv_args[i] );
-        }
-    }
-    PUTBACK;
-    PERL_SET_CONTEXT( my_perl );
-    count = call_pv( function, G_EVAL | G_SCALAR );
-    SPAGAIN;
-    /*
-     * Check for "die," make sure we have 1 argument, and set our
-     * return value.
-     */
-    if ( SvTRUE( ERRSV ) ) {
-        sprintf( data, "%sPerl function (%s) exited abnormally: %s", ( loaded ? "ERR " : "" ), function, SvPV( ERRSV, na ) );
-        ( void )POPs;
-    }
-    else if ( count != 1 ) {
-        /*
-         * This should NEVER happen.  G_SCALAR ensures that we WILL
-         * have 1 parameter.
-         */
-        sprintf( data, "%sPerl error executing '%s': expected 1 return value; received %s", ( loaded ? "ERR " : "" ), function, count );
-    }
-    else {
-        sprintf( data, "%s%s", ( loaded ? "OK " : "" ), POPpx );
-    }
-    /* Check for changed arguments */
-    for ( i = 0; i < sizeof( args ) - 1; i++ ) {
-        if ( args[i] && strcmp( args[i], SvPVX( sv_args[i] ) ) ) {
-            args[i] = strdup( SvPV( sv_args[i], na ) );
-        }
-    }
-    PUTBACK;
-    FREETMPS;
-    LEAVE;
-    return ret_value;
-}
-
-int require_win32api () { // make sure W::A is actually installed
-    SV*    result = eval_pv( "require Win32::API;", FALSE );
-    if ( SvTRUE( ERRSV ) )
-        return 0;
-    else
-        return 1;
-    return 0;
-}
-
 /*
 
 =pod
@@ -229,9 +241,28 @@ perl4mIRC
     ; From mIRC
     //echo $perl(5.6 + 456)
 
-=head 1 Description
+    ; With the included perl4mIRC module;
 
-Use Perl from mIRC
+=head1 Description
+
+Yo, dawg! We heard you like one liners so we put perl in your mIRC so
+you can write Perl while on IRC!
+
+=head1 To Do
+
+...plenty.
+
+=over
+
+=item Cache packages according to perlembed
+
+=item bugfixes?
+
+=item See inline TODO comments in perl4mirc.c
+
+=item handle $ identifiers
+
+=back
 
 =head 1 Author
 

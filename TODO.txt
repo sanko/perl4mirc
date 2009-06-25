@@ -1,7 +1,0 @@
-
-- Cache packages according to perlembed
-- bugfixes?
-- See inline TODO comments in perl4mirc.c
-- change output to signals (let user decide what to do with the text) rather
-    than echo calls?
-- handle $ identifiers

@@ -1,9 +1,34 @@
+Version 0.999.700 | Wed, 25 Jun 2009
+
+    API Changes/Compatibility Information:
+     * STDERR/STDOUT now trigger signals instead of echo
+     * perl4mIRC.pm **MUST** be in either $mircdir/lib/ or $mircdir/perl/
+     * Hacky mIRC pseudo-hash mess has been removed. Use mIRC->var('blah') to
+       retrieve the value and mIRC->set('blah') to... set it. Obviously.
+     * mIRC identifiers are now run like mIRC->echo('some text');
+
+    Resolved Issues/Bug Fixes:
+     * N/A
+
+    Internal/Behavioral Changes:
+     * eval'd code is now shoved into a sub for safety. Fixes a random crash bug.
+     * new mIRC package
+
+    Documentation/Sample Code/Test Suite:
+     * perl.mrc and Readme.txt updated to reflect new API changes
+
+    Notes:
+     * I'll keep up with this project a little better than I have. I promise.
+
+---
+
 Version 0.9.600 (29 Nov 2008)
 http://sankorobinson.com/
 
  Internal changes:
   - (undocumented) perl4mIRC.pm is now external for hacking, easy updates
-  - (undocumented) perl4mIRC.dll retains basic functionality (perl eval, etc.) without Win32::API (print to mIRC window, mIRC exec, eval, etc.)
+  - (undocumented) perl4mIRC.dll retains basic functionality (perl eval, etc.)
+     without Win32::API (print to mIRC window, mIRC exec, eval, etc.)
   - (undocumented) Building should be a little easier
 
 Version 0.9.501 (29 Jan 2008)
@@ -36,4 +61,7 @@ http://sankorobinson.com/?p=1195847788.76563
  Internal changes:
   - dropped custom XS module in favor of Win32::API with DLL calls.
 
-$Id: CHANGES.txt 4 2008-12-05 05:12:08Z sanko@cpan.org $
+
+_ -.-. .... .- -. --. . ... _________________________________________
+For more information, see the commit log:
+    http://github.com/sanko/perl4mIRC/commits/master

@@ -1,4 +1,4 @@
-; perl4mIRC support script for version 0.9.600
+; perl4mIRC support script for version 0.9.700
 ;
 ; Written by Sanko Robinson <sanko@cpan.org>
 ;
@@ -27,16 +27,20 @@ alias has_perl { return $!perl_embed($script,$scriptline) }
 
 ; Initialization callback
 on *:SIGNAL:PERL_ONLOAD: {
-  perl mIRC->{'PerlVer'} = qq[$^V]
-  perl mIRC->{'version'} = qq[$VERSION]
+  perl mIRC->var('PerlVer') = qq[$^V]
+  perl mIRC->var('version') = qq[$VERSION]
   echo $color(info2) -ae * Loaded perl4mIRC %version (using Perl %PerlVer $+ ). Edit line $scriptline of $qt($remove($script,$mircdir)) to change this message.
-  perl delete mIRC->{'PerlVer'}
-  perl delete mIRC->{'version'}
+  perl mIRC->unset('PerlVer')
+  perl mIRC->unset('version')
 }
 
 on *:SIGNAL:PERL_UNLOAD: {
   echo $color(info2) -ae * Unloaded perl4mIRC
 }
+
+; Standard input/output handling
+on *:SIGNAL:PERL_STDOUT:if ($1 != $null) echo -a $1-
+on *:SIGNAL:PERL_STDERR:if ($1 != $null) echo $color(info) -a $1-
 
 on *:LOAD: { echo $color(info2) -ae * Running /perl_test to see if Perl works: | perl_test }
 
@@ -48,12 +52,11 @@ on *:LOAD: { echo $color(info2) -ae * Running /perl_test to see if Perl works: |
 alias perl_hello_world { perl print q[Hello world] }
 
 ; Version
-alias perl_hello_world { perl version }
 alias perl_version { if ($isid) return $dll($perl_dll,version,$1-) | dll $perl_dll version $1- }
 
 ; Perl timer-delays (needs multithreaded Perl)
 ; Use threads only at your own risk!
-alias perl_threads { perl use threads; async{sleep 10; print q[Done]}; print q[Go!]; }
+alias perl_threads { perl use threads; async{sleep 10; print 'threads test complete!'}; print 'threads test... start!'; }
 
 ; Download a file from a website and print the first line (LWP::Simple is needed)
 alias perl_get_versions_file {
@@ -64,7 +67,7 @@ alias perl_get_versions_file {
 ; are not accessible such as $1-
 alias perl_strlen {
   set %data $1-
-  perl mIRC(q[//echo len:] . length(mIRC->{'data'}));
+  perl print 'len:' . length(mIRC->var('data'));
   unset %data
 }
 
@@ -73,9 +76,9 @@ alias perl_strlen {
 ; Test method
 alias perl_test {
   if $($has_perl,2) {
-    mIRC("/linesep -a");
+    mIRC->linesep("-a");
     my @array = qw[3 5 1 2 4 9 7 6];
-    printf qq[Testing Perl.\n\tOriginal array: %s\n\tSorted array  : %s],
+    printf "Testing Perl.\n\tOriginal array: %s\n\tSorted array  : %s",
     join(q{, },@array),
     join(q[, ], sort @array);
   }
@@ -93,7 +96,7 @@ alias perl_list_modules {
     }
     # Bring information back to mIRC in a var rather
     # than using the mirc proc to /echo the results
-    mIRC->{modules} = join(q[, ], sort {lc $a cmp lc $b} @modules);
+    mIRC->var('modules') = join(q[, ], sort {lc $a cmp lc $b} @modules);
   }
   echo -a Perl Modules: %modules
   unset %modules
@@ -104,22 +107,11 @@ alias perl_list_modules {
 ; Requires you to install this script without spaces in the path
 alias inlinec {
   if $($has_perl,2) {
-    use Inline C => q[
-    void greet() {
-      printf("Hello, world\n");
-    }
-    ];
-    greet;
-  }
-}
+    use Inline (C => <<'');
+    int add(int x, int y)      { return x + y; }
+    int subtract(int x, int y) { return x - y; }
 
-; Here is an example using event specific identifiers from Perl
-; It's not perfect, but I'll work on it...
-on *:TEXT:*hello*:#perl-moo-moo: {
-  %nick = $nick
-  %chan = $chan
-  if $($has_perl,2) {
-    printf q[%s just said hi on %s],mIRC->{nick}, mIRC->{chan};
-    mIRC("/msg ". mIRC->{nick} . " Yo");
+    print "9 + 16 = " . add(9, 16) . "\n";
+    print "9 - 16 = " . subtract(9, 16) . "\n";
   }
 }

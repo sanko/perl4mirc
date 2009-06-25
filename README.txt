@@ -12,77 +12,55 @@ DESCRIPTION
 
 REQUIREMENTS
 
-	any version of mIRC (built on v6.21)
+	any version of mIRC (built on v6.35)
 	Perl (built on v5.10.0)
 	Win32::API
 
 INSTALLATION
 
-	To install this script and DLL, it is recommended (but not necessary)
-	to copy the files in this package into a directory within mIRC's
-	installation directory. At that point you can type
+	First, make sure you have the Win32::API module installed.
 
-		/load -rs C:\path\to\perl.mrc
+	To install this script and DLL, to copy the files in this package into a
+	mIRC's directory and type...
 
-	To load the script file. This will run /perl_hello_world to test the
-	installation. You should see "Hello world" if the test ran successfully.
+		/load -rs C:\[path\to\mirc]\perl.mrc
 
-	If you receive an error about Win32::API, type the following at the
-	command line:
-
-	   ppm install http://www.bribes.org/perl/ppm/Win32-API.ppd
+	...to load the script file. This will run /perl_test to test the
+	installation.
 
 USAGE & EXAMPLES
 
-	Use /perl <perl syntax> to execute Perl code.
-
-	Several examples are in perl.mrc, I'll explain the nifty bits...
+	Use /perl <perl syntax> to execute Perl code. Several examples of this and
+	the embedded syntax are in perl.mrc. I'll explain some of the nifty bits
+	here...
 
 	Midway through perl.mirc, you come upon the following alias...
 
-                ; Shows how to pass data to and from Perl
-                alias perl_strlen {
-                   set %data $1-
-                   perl mIRC(q[//echo len:] . length(mIRC->{'data'}));
-		   unset %data
-                }
+		; Shows how to pass data to and from Perl
+		alias perl_strlen {
+			set %data $1-
+			perl mIRC->echo('len: ' . length(mIRC->var('data')));
+			unset %data
+		}
 
-	We use the pseudo-hash mIRC to get and set variables inside mIRC and the
-	coderef mIRC executes msl inline. You could toss down a banana peel with:
-
-		/perl use strict; mIRC->{here} = q[TEST];
-
-	No, it won't die, but it breaks my little fake hash/coderef thing. So,
-	don't.
-
-	Yes, this is very very misleading in code and a very very bad idea in
-	general practice but until I find a solution as fast and light as this,
-	I'll make use of it. See perldoc perlref to investigate on your own.
-	...or contact me and I'll do my best to fill you in.
-
-        Near the bottom of perl.mrc, you'll find this...
-
-                ; REAL inline C :D
-                ; You asked for it, so here it is...
-                ; Requires you to install this script without spaces in the path
-                alias inlinec {
-                   if $($has_perl,2) {
-                      use Inline C => q[
-                         void greet() {
-                            printf("Hello, world\n");
-                         }
-                      ];
-                      greet;
-                   }
-                }
+C4mIRC
 
 	Yep, C. Inside mIRC. This is made possible with the very crafty
 	Inline::C[4] module available on CPAN[5], you'll find several Inline
-	modules that evaluate assembler[6], Java[7], Lua[8], Python[9], Ruby[10],
-	Tcl[11], and several other[12] languages. Please note, several of these
-	Inline:: modules (Inline::C for sure) require you to install the script
-	to a path WITHOUT spaces. And PLEASE read the docs for these before
-	jumping into it... You'll save yourself some time and effort.
+	modules that evaluate ASM[6], Awk, Basic, C++, Guile, Java[7], Lua[8],
+	Python[9], Ruby[10], Tcl[11], and several other[12] languages.
+
+	For an example of C4mIRC, check out the inlinec alias in perl.mrc. Also,
+	note that you may run into problems if you try this from a directory with
+	spaces.
+
+Win32::API
+
+	Without Win32::API, only basic functionality is supported.
+
+		Ex: //echo $perl(9 + 5)
+
+	...just install it from CPAN and forget about it.
 
 RELEASE INFORMATION
 
@@ -123,3 +101,4 @@ LINKS
 	[12] http://search.cpan.org/search?m=dist&q=Inline::
 	[13] http://www.perlfoundation.org/artistic_2_0_notes
 	[14] http://creativecommons.org/licenses/by-sa/3.0/us/
+	[15] http://www.cpan.org/authors/id/R/RG/RGARCIA/perl-5.10.0.tar.gz
