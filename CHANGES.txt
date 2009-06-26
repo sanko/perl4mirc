@@ -1,3 +1,10 @@
+Version 0.999.800 | Thu, 26 Jun 2009
+
+    Internal/Behavioral Changes:
+     * Catches missing Win32::API dependancy and alerts user with MessageBox
+
+---
+
 Version 0.999.700 | Wed, 25 Jun 2009
 
     API Changes/Compatibility Information:

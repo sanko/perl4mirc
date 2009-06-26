@@ -13,7 +13,7 @@ package perl4mIRC;
     use constant NULL                => 0;
     use constant PAGE_READWRITE      => 4;
     use constant FILE_MAP_ALL_ACCESS => 0x000f001f;
-    our $VERSION = 0.999.700;
+    our $VERSION = 0.999.800;
     my ($hFileMap, $mData, $mWnd);
     my $NAMESPACE = 'mIRC';
     my $gap       = chr(160) x 2;

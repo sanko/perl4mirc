@@ -2,7 +2,7 @@
 #include "perl.h"
 #include "patchlevel.h"   /* for local_patches */
 
-char* VERSION = "0.999.700";
+char* VERSION = "0.999.800";
 
 typedef struct {
     short major;
@@ -125,8 +125,8 @@ int __declspec( dllexport ) __stdcall LoadDll( LOADINFO *mIRC ) {
                                  FALSE );
             }
             else {
-                // MessageBox( 0, "Please install Win32::API from CPAN. See Readme.txt for more.",
-                //        "Missing dependancy!" , MB_ICONSTOP );
+                MessageBox( 0, "Please install Win32::API from CPAN. See Readme.txt for more.",
+                            "Missing dependancy!" , MB_ICONSTOP );
                 SV* result = eval_pv(
                                  "*perl4mIRC::eval_string = sub {eval shift};",
                                  FALSE );

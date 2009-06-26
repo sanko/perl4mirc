@@ -1,4 +1,4 @@
-; perl4mIRC support script for version 0.9.700
+; perl4mIRC support script for version 0.999.800
 ;
 ; Written by Sanko Robinson <sanko@cpan.org>
 ;
