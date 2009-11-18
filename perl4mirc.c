@@ -33,15 +33,20 @@ HANDLE hMapFile;
 LPSTR mData;
 
 EXTERN_C void xs_init ( pTHX );
-EXTERN_C void boot_DynaLoader ( pTHX_ CV* cv );
-EXTERN_C void boot_Win32CORE  ( pTHX_ CV* cv );
+EXTERN_C void boot_DynaLoader  ( pTHX_ CV* cv );
+EXTERN_C void boot_Win32CORE   ( pTHX_ CV* cv );
+EXTERN_C void XS_mIRC_evaluate ( pTHX_ CV* cv );
+EXTERN_C void XS_mIRC_execute  ( pTHX_ CV* cv );
 
 EXTERN_C void xs_init( pTHX ) {
     PERL_UNUSED_CONTEXT;
     char * file = __FILE__;
     dXSUB_SYS;
     /* DynaLoader is a special case; Win32 is a special m[h?ea?d] case */
-    newXS( "DynaLoader::boot_DynaLoader", boot_DynaLoader, file );
+    ( void )newXS( "DynaLoader::boot_DynaLoader", boot_DynaLoader,  file );
+    ( void )newXS( "Win32CORE::bootstrap",        boot_Win32CORE,   file );
+    ( void )newXS( "mIRC::evaluate",              XS_mIRC_evaluate, file );
+    ( void )newXS( "mIRC::execute",               XS_mIRC_execute,  file );
 }
 
 void
@@ -68,7 +73,6 @@ typedef struct {
     SV     *       arg;
     Off_t          posn;
 } PerlIOmIRC;
-
 
 SSize_t PerlIOmIRC_read( pTHX_ PerlIO *f, void *vbuf, Size_t count ) {
     STDCHAR *buf = ( STDCHAR * ) vbuf;
@@ -118,9 +122,6 @@ SSize_t PerlIOmIRC_write( pTHX_ PerlIO * f, const void *vbuf, Size_t count ) {
                         ( isdigit( *( const char * )vbuf ) ? "﻿ " : "" ),
                         vbuf ) );
     return count;
-}
-void
-    newXS( "Win32CORE::bootstrap", boot_Win32CORE, file );
 }
 
 PERLIO_FUNCS_DECL( PerlIO_mIRC ) = {
@@ -357,6 +358,60 @@ extern "C"
     */
 }
 
+XS( XS_mIRC_execute );
+XS( XS_mIRC_execute ) {
+#ifdef dVAR
+    dVAR;
+    dXSARGS;
+#else
+    dXSARGS;
+#endif
+    if ( items != 2 )
+        croak( "Usage: mIRC->testing( snippet" );
+    {
+        const char * snippet = ( const char * )SvPV_nolen( ST( 1 ) );
+        mIRC_execute( snippet );
+    }
+    XSRETURN_EMPTY;
+}
+
+XS( XS_mIRC_evaluate );
+XS( XS_mIRC_evaluate ) {
+#ifdef dVAR
+    dVAR;
+    dXSARGS;
+#else
+    dXSARGS;
+#endif
+    if ( items != 2 )
+        croak( "Usage: mIRC->evaluate( variable" );
+    {
+        const char * RETVAL;
+        dXSTARG;
+        const char * variable = ( const char * )SvPV_nolen( ST( 1 ) );
+        RETVAL = mIRC_evaluate( variable );
+        sv_setpv( TARG, RETVAL );
+        XSprePUSH;
+        PUSHTARG;
+    }
+    XSRETURN( 1 );
+}
+
+XS( XS_mIRC_VERSION );
+XS( XS_mIRC_VERSION ) {
+#ifdef dVAR
+    dVAR;
+    dXSARGS;
+#else
+    dXSARGS;
+#endif
+    {
+        dXSTARG;
+        sv_setpv( TARG, VERSION );
+        XSprePUSH;
+        PUSHTARG;
+    }
+    XSRETURN( 1 );
 }
 
 /*
