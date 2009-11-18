@@ -1,4 +1,4 @@
-; perl4mIRC support script for version 0.999.800
+; perl4mIRC support script for version 1.0
 ;
 ; Written by Sanko Robinson <sanko@cpan.org>
 ;
@@ -22,14 +22,14 @@ alias perl_str { return $qt($replace($1,\,/,$,\$)) }
 alias perl {  if ($isid)  return $dll($perl_dll,perl_eval_string,$1-) | dll $perl_dll perl_eval_string $1- }
 
 ; Perl interpeter bridge methods for embedded scripts
-alias perl_embed { perl eval_embed( $perl_str($1) $+ , $2-) | return $false }
-alias has_perl { return $!perl_embed($script,$scriptline) }
+alias perl_embed { perl mIRC::eval_embed( $perl_str($1) $+ , $2-) | return $false }
+alias use_perl { return $!perl_embed($script,$scriptline) }
 
 ; Initialization callback
 on *:SIGNAL:PERL_ONLOAD: {
   perl mIRC->var('PerlVer') = qq[$^V]
-  perl mIRC->var('version') = qq[$VERSION]
-  echo $color(info2) -ae * Loaded perl4mIRC %version (using Perl %PerlVer $+ ). Edit line $scriptline of $qt($remove($script,$mircdir)) to change this message.
+  perl mIRC->var('version') = qq[$mIRC::VERSION]
+  echo $color(info2) -ae * Loaded perl4mIRC %version (using Perl %PerlVer $+ ). Edit line $scriptline of $qt($remove($script,$mircdir)) to change or remove this message.
   perl mIRC->unset('PerlVer')
   perl mIRC->unset('version')
 }
@@ -49,7 +49,7 @@ on *:LOAD: { echo $color(info2) -ae * Running /perl_test to see if Perl works: |
 ; One-liners
 
 ; Classic hello world
-alias perl_hello_world { perl print q[Hello world] }
+alias perl_hello_world { perl print q[Hello, world!] }
 
 ; Version
 alias perl_version { if ($isid) return $dll($perl_dll,version,$1-) | dll $perl_dll version $1- }
@@ -58,9 +58,9 @@ alias perl_version { if ($isid) return $dll($perl_dll,version,$1-) | dll $perl_d
 ; Use threads only at your own risk!
 alias perl_threads { perl use threads; async{sleep 10; print 'threads test complete!'}; print 'threads test... start!'; }
 
-; Download a file from a website and print the first line (LWP::Simple is needed)
-alias perl_get_versions_file {
-  perl use LWP::Simple qw[get];my@l=split(m[\n],get(q[http://www.mirc.co.uk/versions.txt]));print$l[0];
+; Download a file from a website and print the content (LWP::Simple is needed)
+alias lwp {
+  perl use LWP::Simple qw[get];print 'Your IP address: ' .get('http://www.whatismyip.com/automation/n09230945.asp')
 }
 
 ; Shows how to pass data to and from Perl when certain identifiers
@@ -75,17 +75,18 @@ alias perl_strlen {
 
 ; Test method
 alias perl_test {
-  if $($has_perl,2) {
+  if $($use_perl,2) {
     mIRC->linesep("-a");
     my @array = qw[3 5 1 2 4 9 7 6];
-    printf "Testing Perl.\n\tOriginal array: %s\n\tSorted array  : %s",
-    join(q{, },@array),
-    join(q[, ], sort @array);
+    print 'Testing Perl';
+    print '  Original array: ' . join( ', ', @array );
+    print '  Sorted array  : ' . join( ', ', sort @array );
   }
 }
+
 ; Lists the modules currently loaded in Perl
 alias perl_list_modules {
-  if $($has_perl,2) {
+  if $($use_perl,2) {
     my @modules;
     for my $module(keys %INC) {
       if ($module =~ m[\.pm$]) {
@@ -106,7 +107,7 @@ alias perl_list_modules {
 ; You asked for it, so here it is...
 ; Requires you to install this script without spaces in the path
 alias inlinec {
-  if $($has_perl,2) {
+  if $($use_perl,2) {
     use Inline (C => <<'');
     int add(int x, int y)      { return x + y; }
     int subtract(int x, int y) { return x - y; }

@@ -9,12 +9,17 @@ Version 0.999.999 | Fri, 27 Nov 2009
 
     Internal/Behavioral Changes:
      * Use a custom PerlIO layer to redirect STDOUT/STDERR to mIRC signals
+     * Removed hacky workarounds for mIRC's whitespace (mis)handling. I feel
+       this sort of thing is best left as an exersize for end users
 
     Documentation/Sample Code/Test Suite:
+     * Minor changes to perl.mrc and Readme.txt to reflect new API changes and
+       other stuff
 
     Notes:
      * This release is huge as it...
        - removes all non-core dependancies :D
+       - moves most of the Perl-based background stuff to quicker C-level stuff
      * The PerlIO stuff is... unstable. Use with care.
 
 ---
@@ -47,7 +52,6 @@ Version 0.999.700 | Wed, 25 Jun 2009
 
     Notes:
      * I'll keep up with this project a little better than I have. I promise.
-
 ---
 
 Version 0.9.600 (29 Nov 2008)
@@ -88,7 +92,6 @@ http://sankorobinson.com/?p=1195847788.76563
 
  Internal changes:
   - dropped custom XS module in favor of Win32::API with DLL calls.
-
 
 _ -.-. .... .- -. --. . ... _________________________________________
 For more information, see the commit log:

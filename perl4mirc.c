@@ -7,7 +7,7 @@
 #define NEED_sv_2pv_flags
 #include "patchlevel.h" /* for local_patches */
 
-const char * VERSION   = "0.999.999";
+const char * VERSION   = "1.0";
 static const char * NAMESPACE = "mIRC";
 
 #define BUFFER_SIZE  4096
@@ -424,10 +424,7 @@ perl4mIRC
 
 =head1 Synopsis
 
-    ; From mIRC
-    //echo $perl(5.6 + 456)
-
-    ; With the included perl4mIRC module;
+  /perl print 5.6 + 465
 
 =head1 Description
 
@@ -444,13 +441,13 @@ you can write Perl while on IRC!
 
 =item bugfixes?
 
-=item See inline TODO comments in perl4mirc.c
+=item See inline TODO comments in perl4mIRC.c
 
 =item handle $ identifiers
 
 =back
 
-=head 1 Author
+=head1 Author
 
 Sanko Robinson <sanko@cpan.org> - http://sankorobinson.com/
 
@@ -470,8 +467,6 @@ When separated from the distribution, all POD documentation is covered
 by the Creative Commons Attribution-Share Alike 3.0 License.  See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
-
-=for svn $Id: perl4mirc.c 4 2008-12-05 05:12:08Z sanko@cpan.org $
 
 =cut
 
