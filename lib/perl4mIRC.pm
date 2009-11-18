@@ -5,51 +5,15 @@ package perl4mIRC;
     use Carp qw[carp];
     use Text::Balanced qw[extract_codeblock];
     use Symbol qw[delete_package];
-    use Win32::API;    # Not in CORE
-    use constant BUFFER_SIZE         => 4096;
-    use constant WM_USER             => 0x400;
-    use constant WM_MCOMMAND         => (WM_USER + 200);
-    use constant WM_MEVALUATE        => (WM_USER + 201);
-    use constant NULL                => 0;
-    use constant PAGE_READWRITE      => 4;
-    use constant FILE_MAP_ALL_ACCESS => 0x000f001f;
     our $VERSION = 0.999.800;
-    my ($hFileMap, $mData, $mWnd);
     my $NAMESPACE = 'mIRC';
     my $gap       = chr(160) x 2;
     my $tab       = $gap x 2;
     *mIRC = *mIRC = *execute;    # is _this_ your card?
     $|++;
-    Win32::API->Import('user32',
-                 'int SendMessage(int hWnd, int Msg, int wParam, int lParam)')
-        or die $!;
-    Win32::API->Import(
-        'kernel32',
-        'INT CreateFileMapping(int hFile,int lAttr,int fProt,int dMaxHi,int dMaxLo,char* pName)'
-    ) or die $^E;
-    Win32::API->Import(
-        'Kernel32',
-        'INT MapViewOfFile(int hFMapObj,int dAcs, int dFOffHi,int dFOffLo,int dNumOBytes)'
-    ) or die $^E;
-    Win32::API->Import('kernel32', 'BOOL UnmapViewOfFile(char* lBAddr)')
-        or die $^E;
-    Win32::API->Import('kernel32', 'BOOL CloseHandle(char* hObject)')
-        or die $^E;
-    Win32::API->Import('kernel32',
-                       'VOID RtlMoveMemory(int hDst, char* pSrc, int lLen)')
-        or die $^E;
-    my $RTLMoveMemory_R =    # above to write, this to read
-        Win32::API->new('kernel32', 'RtlMoveMemory', [qw[P I I]], 'V')
-        or die $^E;
 
     sub init {
         ($mWnd) = @_;
-        $hFileMap = CreateFileMapping(0xFFFFFFFF, NULL, PAGE_READWRITE, 0,
-                                      BUFFER_SIZE, $NAMESPACE);
-        return 0 if !$hFileMap;
-        $mData = MapViewOfFile($hFileMap, FILE_MAP_ALL_ACCESS, 0, 0, 16);
-        tie *STDOUT, 'perl4mIRC';       # redirect STDOUT
-        tie *STDERR, 'perl4mIRC', 1;    # redirect STDERR
              #tie %mIRC,   'perl4mIRC';       # deceitful mess
         mIRC->signal('-n PERL_ONLOAD');
         return 1;
@@ -57,8 +21,6 @@ package perl4mIRC;
 
     sub deinit {
         mIRC->signal('-n PERL_UNLOAD');
-        UnmapViewOfFile($mData);
-        CloseHandle($hFileMap);
         return 1;
     }
 
@@ -99,28 +61,6 @@ EVAL
         warn($@) if $@;
         delete_package($package);
         return $return;
-    }
-
-    sub evaluate {
-        my ($command) = @_;
-        RtlMoveMemory($mData, chr(0) x BUFFER_SIZE, BUFFER_SIZE);
-        RtlMoveMemory($mData, $command,             length($command) + 15);
-        my $return = SendMessage($mWnd, WM_MEVALUATE, 0, 0);
-        $command = chr(0) x BUFFER_SIZE;
-        $RTLMoveMemory_R->Call($command, $mData, BUFFER_SIZE);
-        ($command, undef) = split(q'\0', $command, 2);
-        return $command;
-    }
-
-    sub execute {
-        my ($command) = @_;
-        RtlMoveMemory($mData, chr(0) x BUFFER_SIZE, BUFFER_SIZE);
-        RtlMoveMemory($mData, $command,             length($command) + 15);
-        my $return = SendMessage($mWnd, WM_MCOMMAND, 1 | 4, 0);
-        $command = chr(0) x BUFFER_SIZE;
-        $RTLMoveMemory_R->Call($command, $mData, BUFFER_SIZE);
-        ($command, undef) = split(chr(0), $command, 2);
-        return $command;
     }
     sub TIEHANDLE { $_[1] ||= 0; return bless \pop, pop; }
 

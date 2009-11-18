@@ -1,8 +1,12 @@
 const char * VERSION   = "0.999.999";
+static const char * NAMESPACE = "mIRC";
 #include "EXTERN.h"
 #include "perl.h"
 #include "patchlevel.h"   /* for local_patches */
 
+#define BUFFER_SIZE  4096
+#define WM_MCOMMAND  WM_USER + 200
+#define WM_MEVALUATE WM_USER + 201
 
 typedef struct {
     short major;
@@ -19,6 +23,8 @@ static PerlInterpreter *my_perl = NULL;
 
 HWND mWnd;
 BOOL loaded;
+HANDLE hMapFile;
+LPSTR mData;
 
 EXTERN_C void xs_init ( pTHX );
 EXTERN_C void boot_DynaLoader ( pTHX_ CV* cv );
@@ -30,6 +36,22 @@ EXTERN_C void xs_init( pTHX ) {
     dXSUB_SYS;
     /* DynaLoader is a special case; Win32 is a special m[h?ea?d] case */
     newXS( "DynaLoader::boot_DynaLoader", boot_DynaLoader, file );
+
+void
+mIRC_execute ( const char * snippet ) {
+    wsprintf( mData, snippet );
+    SendMessage( mWnd, WM_MCOMMAND, ( WPARAM ) NULL, ( LPARAM ) NULL );
+    return;
+}
+
+const char *
+mIRC_evaluate ( const char * variable ) {
+    lstrcpy( mData, variable );
+    return SendMessage( mWnd, WM_MEVALUATE, ( WPARAM ) NULL, ( LPARAM ) NULL ) ?
+           mData : "";
+}
+
+void
     newXS( "Win32CORE::bootstrap", boot_Win32CORE, file );
 }
 
