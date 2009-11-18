@@ -113,7 +113,9 @@ SSize_t PerlIOmIRC_write( pTHX_ PerlIO * f, const void *vbuf, Size_t count ) {
         fh = "STDOUT";
     else if ( f == PerlIO_stderr( ) )
         fh = "STDERR";
-    mIRC_execute( form( "/.signal -n PERL_%s %s", fh, vbuf ) );
+    mIRC_execute( form( "/.signal -n PERL_%s %s%s", fh,
+                        ( isdigit( *( const char * )vbuf ) ? "﻿ " : "" ),
+                        vbuf ) );
     return count;
 }
 void
