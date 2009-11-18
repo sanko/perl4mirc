@@ -6,10 +6,14 @@ Version 0.999.999 | Fri, 27 Nov 2009
      * We no longer destroy the perl interpreter when mIRC times out the dll
 
     Internal/Behavioral Changes:
+     * Use a custom PerlIO layer to redirect STDOUT/STDERR to mIRC signals
 
     Documentation/Sample Code/Test Suite:
 
     Notes:
+     * This release is huge as it...
+       - removes all non-core dependancies :D
+     * The PerlIO stuff is... unstable. Use with care.
 
 ---
 

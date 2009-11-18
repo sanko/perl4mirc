@@ -236,19 +236,12 @@ int __declspec( dllexport ) __stdcall LoadDll( LOADINFO *mIRC ) {
             PL_exit_flags |= PERL_EXIT_DESTRUCT_END;
             perl_run( my_perl );
 
-            // make sure W::A is actually installed
-            SV* result = eval_pv( "require Win32::API;", FALSE );
-            if ( ! SvTRUE( ERRSV ) ) {
                 SV* result = eval_pv(
                                  "use FindBin;"
                                  "use lib qq[$FindBin::Bin/lib];"
                                  "use lib qq[$FindBin::Bin/perl];"
                                  "perl4mIRC->import() if eval 'require perl4mIRC';",
                                  FALSE );
-            }
-            else {
-                MessageBox( 0, "Please install Win32::API from CPAN. See Readme.txt for more.",
-                            "Missing dependancy!" , MB_ICONSTOP );
                 SV* result = eval_pv(
                                  "*perl4mIRC::eval_string = sub {eval shift};",
                                  FALSE );

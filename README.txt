@@ -14,11 +14,8 @@ REQUIREMENTS
 
 	any version of mIRC (built on v6.35)
 	Perl (built on v5.10.0)
-	Win32::API
 
 INSTALLATION
-
-	First, make sure you have the Win32::API module installed.
 
 	To install this script and DLL, to copy the files in this package into a
 	mIRC's directory and type...
@@ -53,14 +50,6 @@ C4mIRC
 	For an example of C4mIRC, check out the inlinec alias in perl.mrc. Also,
 	note that you may run into problems if you try this from a directory with
 	spaces.
-
-Win32::API
-
-	Without Win32::API, only basic functionality is supported.
-
-		Ex: //echo $perl(9 + 5)
-
-	...just install it from CPAN and forget about it.
 
 RELEASE INFORMATION
 
