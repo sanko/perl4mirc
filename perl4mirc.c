@@ -68,6 +68,42 @@ typedef struct {
     Off_t          posn;
 } PerlIOmIRC;
 
+
+SSize_t PerlIOmIRC_read( pTHX_ PerlIO *f, void *vbuf, Size_t count ) {
+    STDCHAR *buf = ( STDCHAR * ) vbuf;
+    if ( f ) {
+        if ( !( PerlIOBase( f )->flags & PERLIO_F_CANREAD ) ) {
+            PerlIOBase( f )->flags |= PERLIO_F_ERROR;
+            SETERRNO( EBADF, SS_IVCHAN );
+            return 0;
+        }
+        while ( count > 0 ) {
+get_cnt: {
+                SSize_t avail = PerlIO_get_cnt( f );
+                SSize_t take = 0;
+                if ( avail > 0 )
+                    take = ( ( SSize_t )count < avail ) ? ( SSize_t )count : avail;
+                if ( take > 0 ) {
+                    STDCHAR *ptr = PerlIO_get_ptr( f );
+                    Copy( ptr, buf, take, STDCHAR );
+                    PerlIO_set_ptrcnt( f, ptr + take, ( avail -= take ) );
+                    count -= take;
+                    buf += take;
+                    if ( avail == 0 )  /* set_ptrcnt could have reset avail */
+                        goto get_cnt;
+                }
+                if ( count > 0 && avail <= 0 ) {
+                    if ( PerlIO_fill( f ) != 0 )
+                        break;
+                }
+            }
+        }
+        return ( buf - ( STDCHAR * ) vbuf );
+    }
+    return 0;
+}
+
+}
 void
     newXS( "Win32CORE::bootstrap", boot_Win32CORE, file );
 }
