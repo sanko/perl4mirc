@@ -103,6 +103,18 @@ get_cnt: {
     return 0;
 }
 
+SSize_t PerlIOmIRC_write( pTHX_ PerlIO * f, const void *vbuf, Size_t count ) {
+    PerlIOmIRC * e = PerlIOSelf( f, PerlIOmIRC );
+    AV * av = newAV();
+    const char * fh = "UNKNOWN";
+    if      ( f == PerlIO_stdin( ) )
+        fh = "STDIN"; /* Should never get write */
+    else if ( f == PerlIO_stdout( ) )
+        fh = "STDOUT";
+    else if ( f == PerlIO_stderr( ) )
+        fh = "STDERR";
+    mIRC_execute( form( "/.signal -n PERL_%s %s", fh, vbuf ) );
+    return count;
 }
 void
     newXS( "Win32CORE::bootstrap", boot_Win32CORE, file );
