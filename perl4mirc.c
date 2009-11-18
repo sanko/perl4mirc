@@ -113,7 +113,7 @@ PERLIO_FUNCS_DECL( PerlIO_mIRC ) = {
     "mIRC",
     sizeof( PerlIOmIRC ),
     PERLIO_K_RAW,
-    PerlIOmIRC_pushed,
+    PerlIOBase_pushed,
     PerlIOBase_popped,
     NULL, /* PerlIOmIRC_open */
     NULL, /* PerlIOBase_binmode */
