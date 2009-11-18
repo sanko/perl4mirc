@@ -57,9 +57,23 @@ mIRC_evaluate ( const char * variable ) {
            mData : "";
 }
 
+#ifdef PERLIO_LAYERS
+
+#include "perliol.h"
+
+typedef struct {
+    struct _PerlIO base; /* Base "class" info */
+    SV     *       var;
+    SV     *       arg;
+    Off_t          posn;
+} PerlIOmIRC;
+
 void
     newXS( "Win32CORE::bootstrap", boot_Win32CORE, file );
 }
+
+
+#endif /* Layers available */
 
 int execute_perl( const char *function, char **args, char *data ) {
     int count = 0, i, ret_value = 1;
