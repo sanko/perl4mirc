@@ -1,8 +1,14 @@
+#define PERL_NO_GET_CONTEXT 1
+#include <EXTERN.h>
+#include <perl.h>
+#include <perliol.h>
+#define NO_XSLOCKS /* XSUB.h will otherwise override various things we need */
+#include <XSUB.h>
+#define NEED_sv_2pv_flags
+#include "patchlevel.h" /* for local_patches */
+
 const char * VERSION   = "0.999.999";
 static const char * NAMESPACE = "mIRC";
-#include "EXTERN.h"
-#include "perl.h"
-#include "patchlevel.h"   /* for local_patches */
 
 #define BUFFER_SIZE  4096
 #define WM_MCOMMAND  WM_USER + 200
