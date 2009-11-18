@@ -72,6 +72,36 @@ void
     newXS( "Win32CORE::bootstrap", boot_Win32CORE, file );
 }
 
+PERLIO_FUNCS_DECL( PerlIO_mIRC ) = {
+    sizeof( PerlIO_funcs ),
+    "mIRC",
+    sizeof( PerlIOmIRC ),
+    PERLIO_K_RAW,
+    PerlIOmIRC_pushed,
+    PerlIOBase_popped,
+    NULL, /* PerlIOmIRC_open */
+    NULL, /* PerlIOBase_binmode */
+    NULL, /* PerlIOmIRC_arg */
+    NULL, /* PerlIOmIRC_fileno */
+    NULL, /* PerlIOBase_dup */
+    PerlIOmIRC_read,
+    NULL, /* PerlIOmIRC_unread */
+    PerlIOmIRC_write,
+    NULL, /* PerlIOmIRC_seek */
+    NULL, /* PerlIOmIRC_tell */
+    NULL, /* PerlIOBase_close */
+    NULL, /* PerlIOmIRC_flush */
+    NULL, /* PerlIOmIRC_fill */
+    NULL, /* PerlIOBase_eof */
+    NULL, /* PerlIOBase_error */
+    NULL, /* PerlIOBase_clearerr */
+    NULL, /* PerlIOBase_setlinebuf */
+    NULL, /* PerlIOmIRC_get_base */
+    NULL, /* PerlIOmIRC_bufsiz */
+    NULL, /* PerlIOmIRC_get_ptr */
+    NULL, /* PerlIOmIRC_get_cnt */
+    NULL /* PerlIOmIRC_set_ptrcnt */
+};
 
 #endif /* Layers available */
 
