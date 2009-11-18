@@ -21,11 +21,11 @@ typedef struct {
 
 typedef struct {
     MVERSION mVersion;
-    HWND   mHwnd;
-    BOOL   mKeep;
+    HWND     mHwnd;
+    BOOL     mKeep;
 } LOADINFO;
 
-static PerlInterpreter *my_perl = NULL;
+static PerlInterpreter * my_perl = NULL;
 
 HWND mWnd;
 BOOL loaded;
@@ -34,14 +34,15 @@ LPSTR mData;
 
 EXTERN_C void xs_init ( pTHX );
 EXTERN_C void boot_DynaLoader ( pTHX_ CV* cv );
-EXTERN_C void boot_Win32CORE ( pTHX_ CV* cv );
+EXTERN_C void boot_Win32CORE  ( pTHX_ CV* cv );
 
 EXTERN_C void xs_init( pTHX ) {
     PERL_UNUSED_CONTEXT;
-    char *file = __FILE__;
+    char * file = __FILE__;
     dXSUB_SYS;
     /* DynaLoader is a special case; Win32 is a special m[h?ea?d] case */
     newXS( "DynaLoader::boot_DynaLoader", boot_DynaLoader, file );
+}
 
 void
 mIRC_execute ( const char * snippet ) {
@@ -162,8 +163,8 @@ int execute_perl( const char *function, char **args, char *data ) {
     dSP;
     PERL_SET_CONTEXT( my_perl );
     /*
-     * Set up the perl environment, push arguments onto the
-     * perl stack, then call the given function
+     * Set up the perl environment, push arguments onto the perl stack, then
+     * call the given function
      */
     SPAGAIN;
     ENTER;
@@ -180,8 +181,7 @@ int execute_perl( const char *function, char **args, char *data ) {
     count = call_pv( function, G_EVAL | G_SCALAR );
     SPAGAIN;
     /*
-     * Check for "die," make sure we have 1 argument, and set our
-     * return value.
+     * Check for "die," make sure we have 1 argument, and set our return value
      */
     if ( SvTRUE( ERRSV ) ) {
         sprintf( data,
@@ -191,8 +191,8 @@ int execute_perl( const char *function, char **args, char *data ) {
     }
     else if ( count != 1 ) {
         /*
-         * This should NEVER happen.  G_SCALAR ensures that we WILL
-         * have 1 parameter.
+         * This should NEVER happen. G_SCALAR ensures that we WILL have 1
+         * parameter
          */
         sprintf( data,
                  "%sPerl error executing '%s': expected 1 return value; received %s",
@@ -310,31 +310,32 @@ extern "C"
         HWND   mWnd,  HWND   aWnd,
         char * data,  char * parms,
         BOOL   print, BOOL   nopause
+    ) { /* ...what is this junk? Oh, it's...
+    * mWnd    - the handle to the main mIRC window.
+    * aWnd    - the handle of the window in which the command is being issued,
+    *             this might not be the currently active window if the command
+    *             is being called by a remote script.
+    * data    - the information that you wish to send to the DLL. On return,
+    *             the DLL can fill this variable with the command it wants
+    *             mIRC to perform if any.
+    * parms   - filled by the DLL on return with parameters that it wants mIRC
+    *             to use when performing the command that it returns in the
+    *             data variable.
+    *           Note: The data and parms variables can each hold 900 chars
+    *             maximum.
+    * show    - FALSE if the . prefix was specified to make the command quiet,
+    *            or TRUE otherwise.
+    * nopause - TRUE if mIRC is in a critical routine and the DLL must not do
+    *            anything that pauses processing in mIRC, eg. the DLL should
+    *            not pop up a dialog.
+    *
+    *  We basically ignore the majority of these which is just simply wrong.
+    *  This WILL change in the future.
+    */
+
     if ( my_perl == NULL )
         return 0; /* Halt */
     char * package = form( "mIRC::eval::%d", rand( ) );
-) { /* ...what is this junk? Oh, it's...
-     * mWnd    - the handle to the main mIRC window.
-     * aWnd    - the handle of the window in which the command is being issued,
-     *             this might not be the currently active window if the command
-     *             is being called by a remote script.
-     * data    - the information that you wish to send to the DLL. On return,
-     *             the DLL can fill this variable with the command it wants
-     *             mIRC to perform if any.
-     * parms   - filled by the DLL on return with parameters that it wants mIRC
-     *             to use when performing the command that it returns in the
-     *             data variable.
-     *           Note: The data and parms variables can each hold 900 chars
-     *             maximum.
-     * show    - FALSE if the . prefix was specified to make the command quiet,
-     *            or TRUE otherwise.
-     * nopause - TRUE if mIRC is in a critical routine and the DLL must not do
-     *            anything that pauses processing in mIRC, eg. the DLL should
-     *            not pop up a dialog.
-     *
-     *  We basically ignore the majority of these which is just simply wrong.
-     *  This WILL change in the future.
-     */
     PERL_SET_CONTEXT( my_perl );
     eval_pv( form( "{package %s;\nmy$mIRC=bless\{},'mIRC';*mIRC=*mIRC=%mIRC=$mIRC;\n#line 1 mIRC_eval\n%s}", package, data ), FALSE );
     if ( ! SvTRUE( ERRSV ) )
@@ -344,16 +345,18 @@ extern "C"
     return 0; /* Halt */
 
     /* We can return an integer to indicate what we want mIRC to do:
-     * 0 means that mIRC should /halt processing
-     * 1 means that mIRC should continue processing
-     * 2 means that we have filled the data variable with a command which mIRC
-     *   should perform and we filled parms with the parameters to use, if any,
-     *   when performing the command.
-     * 3 means that the DLL has filled the data variable with the result that
-     *   $dll() as an identifier should return.
-     *
-     * For now, we always return 3. This may change in future.
-     */
+    * 0 means that mIRC should /halt processing
+    * 1 means that mIRC should continue processing
+    * 2 means that we have filled the data variable with a command which mIRC
+    *   should perform and we filled parms with the parameters to use, if any,
+    *   when performing the command.
+    * 3 means that the DLL has filled the data variable with the result that
+    *   $dll() as an identifier should return.
+    *
+    * For now, we always return 3. This may change in future.
+    */
+}
+
 }
 
 /*
