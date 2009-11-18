@@ -1,8 +1,8 @@
+const char * VERSION   = "0.999.999";
 #include "EXTERN.h"
 #include "perl.h"
 #include "patchlevel.h"   /* for local_patches */
 
-char* VERSION = "0.999.800";
 
 typedef struct {
     short major;

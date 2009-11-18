@@ -1,3 +1,17 @@
+Version 0.999.999 | Fri, 27 Nov 2009
+
+    API Changes/Compatibility Information:
+
+    Resolved Issues/Bug Fixes:
+
+    Internal/Behavioral Changes:
+
+    Documentation/Sample Code/Test Suite:
+
+    Notes:
+
+---
+
 Version 0.999.800 | Thu, 26 Jun 2009
 
     Internal/Behavioral Changes:
