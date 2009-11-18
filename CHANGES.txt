@@ -1,6 +1,8 @@
 Version 0.999.999 | Fri, 27 Nov 2009
 
     API Changes/Compatibility Information:
+     * The module that comes along with this package has been renamed
+       perl4mIRC.pm => mIRC.pm
 
     Resolved Issues/Bug Fixes:
      * We no longer destroy the perl interpreter when mIRC times out the dll
