@@ -320,6 +320,9 @@ extern "C"
         HWND   mWnd,  HWND   aWnd,
         char * data,  char * parms,
         BOOL   print, BOOL   nopause
+    if ( my_perl == NULL )
+        return 0; /* Halt */
+    char * package = form( "mIRC::eval::%d", rand( ) );
 ) { /* ...what is this junk? Oh, it's...
      * mWnd    - the handle to the main mIRC window.
      * aWnd    - the handle of the window in which the command is being issued,
@@ -342,15 +345,14 @@ extern "C"
      *  We basically ignore the majority of these which is just simply wrong.
      *  This WILL change in the future.
      */
-    if ( my_perl == NULL ) {
-        return 0;
-    }
-    char *package;
-    sprintf( package, "perl4mIRC::Eval::%d", rand() ); // TODO - generate in perl4mIRC?
-    char *atmp[3] = { data, package, NULL };
     PERL_SET_CONTEXT( my_perl );
-    execute_perl( "perl4mIRC::eval_string", atmp, data );
-    return 3;
+    eval_pv( form( "{package %s;\nmy$mIRC=bless\{},'mIRC';*mIRC=*mIRC=%mIRC=$mIRC;\n#line 1 mIRC_eval\n%s}", package, data ), FALSE );
+    if ( ! SvTRUE( ERRSV ) )
+        return 1;
+    /* TODO: make this an error message */
+    mIRC_execute( form( "/echo %s", SvPVx_nolen ( ERRSV ) ) );
+    return 0; /* Halt */
+
     /* We can return an integer to indicate what we want mIRC to do:
      * 0 means that mIRC should /halt processing
      * 1 means that mIRC should continue processing
