@@ -242,9 +242,6 @@ int __declspec( dllexport ) __stdcall LoadDll( LOADINFO *mIRC ) {
                                  "use lib qq[$FindBin::Bin/perl];"
                                  "perl4mIRC->import() if eval 'require perl4mIRC';",
                                  FALSE );
-                SV* result = eval_pv(
-                                 "*perl4mIRC::eval_string = sub {eval shift};",
-                                 FALSE );
                 // TODO: let the user know that things have gone wrong without
                 //       being too disruptive
             }
