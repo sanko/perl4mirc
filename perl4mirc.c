@@ -214,55 +214,55 @@ int execute_perl( const char *function, char **args, char *data ) {
 }
 
 // Get everything going...
-int __declspec( dllexport ) __stdcall LoadDll( LOADINFO *mIRC ) {
+int __declspec( dllexport ) __stdcall LoadDll( LOADINFO * limIRC ) {
+    mWnd = limIRC->mHwnd;
+    limIRC->mKeep = TRUE; // TODO: Set to FALSE if the inline perl fails
+
     if ( my_perl == NULL ) {
-        mWnd = mIRC->mHwnd;
-        mIRC->mKeep = TRUE; // TODO: Set to FALSE if the inline perl fails
-        char *atmp[3] = { NULL, NULL, NULL };
-        char sWnd[20];
-        sprintf( sWnd, "%i", mWnd );
-        atmp[0] = sWnd;
-        if ( my_perl == NULL ) {
-            char *perl_args[] = { "", "-e", "", "0", "", "-w" };
-            PERL_SYS_INIT3( NULL, NULL, NULL );
-            if ( ( my_perl = perl_alloc() ) == NULL ) {
-                MessageBox( 0, "No memory!",
-                            "Cannot load DLL!" , MB_ICONSTOP );
-                mIRC->mKeep = FALSE;
-                return 0;
-            }
-            perl_construct( my_perl );
-            perl_parse( my_perl, xs_init, 6, perl_args, NULL );
-            PL_exit_flags |= PERL_EXIT_DESTRUCT_END;
-            perl_run( my_perl );
-
-                SV* result = eval_pv(
-                                 "use FindBin;"
-                                 "use lib qq[$FindBin::Bin/lib];"
-                                 "use lib qq[$FindBin::Bin/perl];"
-                                 "perl4mIRC->import() if eval 'require perl4mIRC';",
-                                 FALSE );
-                // TODO: let the user know that things have gone wrong without
-                //       being too disruptive
-            }
-
+        /* Get things set for mIRC<=>perl IO */
+        hMapFile = CreateFileMapping( INVALID_HANDLE_VALUE, 0, PAGE_READWRITE, 0, 4096, NAMESPACE );
+        mData = ( LPSTR )MapViewOfFile( hMapFile, FILE_MAP_ALL_ACCESS, 0, 0, 0 );
+        /* Create our persistant interpreter */
+        char * perl_args[] = { "", "-e", "", "0" };
+        PERL_SYS_INIT3( NULL, NULL, NULL );
+        if ( ( my_perl = perl_alloc() ) == NULL ) {
+            mIRC_execute( "/echo Failed to load DLL: No memory" ); /* TODO: make this an error message */
+            limIRC->mKeep = FALSE;
+            return 0;
+        }
+        perl_construct( my_perl );
+        PL_origalen = 1; /* Don't let $0 assignment update the proctitle or perl_args[0] */
+        perl_parse( my_perl, xs_init, 6, perl_args, NULL );
+        PL_exit_flags |= PERL_EXIT_DESTRUCT_END;
+        perl_run( my_perl );
         {
 #ifdef PERLIO_LAYERS
             PerlIO_define_layer( aTHX_ PERLIO_FUNCS_CAST( &PerlIO_mIRC ) );
             PerlIO_apply_layers( aTHX_ PerlIO_stderr( ), NULL, ":mIRC" );
             PerlIO_apply_layers( aTHX_ PerlIO_stdout( ), NULL, ":mIRC" );
 #endif
-            if ( SvTRUE( ERRSV ) )
-                loaded = FALSE;
-            else
-                loaded = TRUE;
-            PERL_SET_CONTEXT( my_perl );
-            perl_run( my_perl );
         }
+        SV * result = eval_pv( form(
+                                   "use FindBin;"                    /* CORE */
+                                   "use lib qq[$FindBin::Bin/lib];"  /* Search %mIRC%/lib for modules */
+                                   "use lib qq[$FindBin::Bin/perl];" /* Look for modules in %mIRC%/perl */
+                                   "my $mIRC = bless \{ }, 'mIRC';"
+                                   "*mIRC = *mIRC = %mIRC = $mIRC;"
+                                   "require mIRC;"
+                                   "$mIRC::VERSION = '%s'", VERSION ), FALSE );
+        if ( SvTRUE( ERRSV ) ) {
+            char * err;
+            sprintf( err, "/echo Failed to load DLL: %s", SvPVx_nolen ( ERRSV ) );/* TODO: make this an error message */
+            mIRC_execute( err );
+            limIRC->mKeep = FALSE;
+            return 0;
+        }
+        mIRC_execute( "/.signal -n PERL_ONLOAD" );
+        loaded = SvTRUE( ERRSV ) ? FALSE : TRUE;
         PERL_SET_CONTEXT( my_perl );
-        char data[1024]; // waste...
-        execute_perl( "perl4mIRC::init", atmp, data );
+        perl_run( my_perl );
     }
+    PERL_SET_CONTEXT( my_perl );
     return 0;
 }
 
