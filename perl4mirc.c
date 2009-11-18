@@ -275,26 +275,28 @@ int __declspec( dllexport ) __stdcall LoadDll( LOADINFO *mIRC ) {
     }
     return 0;
 }
+
 int __declspec( dllexport ) __stdcall UnloadDll( int mTimeout ) {
-    if ( mTimeout == 0 ) { /* user called /dll -u*/  }
-    if ( my_perl == NULL )
-        return 0;
-    PL_perl_destruct_level = 1;
-    PERL_SET_CONTEXT( my_perl );
-    SV* result = eval_pv(
-                     "foreach my $lib (@DynaLoader::dl_modules) {"
-                     "  if ($lib =~ m[^perl4mIRC::]) {"
-                     "    $lib .= q[::deinit();];"
-                     "    eval $lib;"
-                     "  }"
-                     "}"
-                     "perl4mIRC::deinit();",
-                     FALSE );
-    PL_perl_destruct_level = 1;
-    PERL_SET_CONTEXT( my_perl );
-    perl_destruct( my_perl );
-    perl_free( my_perl );
-    my_perl = NULL;
+    SV* result = eval_pv( /* auto clean */
+                     "foreach my $lib ( @DynaLoader::dl_modules ) {\n"
+                     "   if ( $lib =~ m[^mIRC::eval::\\d+$] ) {\n"
+                     "       $lib .= q[->deinit();];\n"
+                     "       eval $lib;\n"
+                     "   }\n" /* TODO: delete the packages? */
+                     "}", FALSE );
+
+    if ( mTimeout == 0 ) { /* user called /dll -u */
+        if ( my_perl == NULL )
+            return 0;
+        PL_perl_destruct_level = 1;
+        PERL_SET_CONTEXT( my_perl );
+        perl_destruct( my_perl );
+        perl_free( my_perl );
+        my_perl = NULL;
+        mIRC_execute( "/.signal -n PERL_UNLOAD" );
+        UnmapViewOfFile( mData );
+        CloseHandle( hMapFile );
+    }
     return 0;
 }
 
