@@ -311,7 +311,13 @@ extern "C"
         HWND   mWnd,  HWND   aWnd,
         char * data,  char * parms,
         BOOL   print, BOOL   nopause
-    ) { /* ...what is this junk? Oh, it's...
+    ) {
+    dSP;
+    I32 ax;
+    int count;
+    char * package;
+    SV * CODE;
+    /* ...what is this junk? Oh, it's...
     * mWnd    - the handle to the main mIRC window.
     * aWnd    - the handle of the window in which the command is being issued,
     *             this might not be the currently active window if the command
@@ -336,14 +342,38 @@ extern "C"
 
     if ( my_perl == NULL )
         return 0; /* Halt */
-    char * package = form( "mIRC::eval::%d", rand( ) );
+    package = form( "mIRC::eval::%d", rand( ) );
     PERL_SET_CONTEXT( my_perl );
-    eval_pv( form( "{package %s;\nmy$mIRC=bless\{},'mIRC';*mIRC=*mIRC=%mIRC=$mIRC;\n#line 1 mIRC_eval\n%s}", package, data ), FALSE );
-    if ( ! SvTRUE( ERRSV ) )
-        return 1;
-    /* TODO: make this an error message */
-    mIRC_execute( form( "/echo %s", SvPVx_nolen ( ERRSV ) ) );
-    return 0; /* Halt */
+    CODE = eval_pv( form( "sub {"
+                          "   package %s;"
+                          "   my $mIRC = bless \{ }, 'mIRC';"
+                          "   *mIRC = *mIRC = %mIRC = $mIRC;\n"
+                          "#line 1 mIRC_eval\n"
+                          "%s\n"
+                          "}", package, data ), TRUE );//echo $perl(2+5)
+    if ( SvTRUE( ERRSV ) ) {
+        warn( SvPVx_nolen ( ERRSV ) );
+        return 0;
+    }
+    ENTER;
+    SAVETMPS;
+    PUSHMARK( SP );
+    PUTBACK;
+    count = call_sv( CODE, G_SCALAR );
+    SPAGAIN;
+    SP -= count;
+    ax = ( SP - PL_stack_base ) + 1;
+    if ( count ) {
+        lstrcpy( data, SvPV_nolen( ST( 0 ) ) );
+        PUTBACK;
+        FREETMPS;
+        LEAVE;
+        return 3; /* value */
+    }
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+    return 1; /* continue */
 
     /* We can return an integer to indicate what we want mIRC to do:
     * 0 means that mIRC should /halt processing
@@ -424,6 +454,9 @@ perl4mIRC
 
 =head1 Synopsis
 
+  ; From mIRC's editbox
+  //echo $perl(reverse uc 'HPAJ')
+  ; Or
   /perl print 5.6 + 465
 
 =head1 Description
