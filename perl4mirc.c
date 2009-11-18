@@ -256,6 +256,12 @@ int __declspec( dllexport ) __stdcall LoadDll( LOADINFO *mIRC ) {
                 //       being too disruptive
             }
 
+        {
+#ifdef PERLIO_LAYERS
+            PerlIO_define_layer( aTHX_ PERLIO_FUNCS_CAST( &PerlIO_mIRC ) );
+            PerlIO_apply_layers( aTHX_ PerlIO_stderr( ), NULL, ":mIRC" );
+            PerlIO_apply_layers( aTHX_ PerlIO_stdout( ), NULL, ":mIRC" );
+#endif
             if ( SvTRUE( ERRSV ) )
                 loaded = FALSE;
             else
