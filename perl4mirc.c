@@ -300,20 +300,26 @@ int __declspec( dllexport ) __stdcall UnloadDll( int mTimeout ) {
     return 0;
 }
 
-int __declspec( dllexport ) __stdcall version (
-    HWND mWnd,   HWND aWnd,
-    char *data, char *parms,
-    BOOL print,  BOOL nopause
-) {
+#ifdef __cplusplus
+extern "C"
+#endif
+    int __stdcall version (
+        HWND   mWnd,  HWND   aWnd,
+        char * data,  char * parms,
+        BOOL   print, BOOL   nopause
+    ) {
     sprintf(
         data, "perl4mIRC v%s by Sanko Robinson <sanko@cpan.org>", VERSION );
     return 3;
 }
 
-int __declspec( dllexport ) __stdcall perl_eval_string (
-    HWND mWnd,   HWND aWnd,
-    char *data, char *parms,
-    BOOL print,  BOOL nopause
+#ifdef __cplusplus
+extern "C"
+#endif
+    int __stdcall perl_eval_string (
+        HWND   mWnd,  HWND   aWnd,
+        char * data,  char * parms,
+        BOOL   print, BOOL   nopause
 ) { /* ...what is this junk? Oh, it's...
      * mWnd    - the handle to the main mIRC window.
      * aWnd    - the handle of the window in which the command is being issued,
