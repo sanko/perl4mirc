@@ -13,7 +13,7 @@ DESCRIPTION
 REQUIREMENTS
 
 	any version of mIRC (developed on v6.35)
-	Perl (developed on v5.10.1)
+	Perl (developed and built for v5.10.1)
 
 INSTALLATION
 
