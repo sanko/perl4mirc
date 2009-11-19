@@ -58,11 +58,6 @@ alias perl_version { if ($isid) return $dll($perl_dll,version,$1-) | dll $perl_d
 ; Use threads only at your own risk!
 alias perl_threads { perl use threads; async{sleep 10; print 'threads test complete!'}; print 'threads test... start!'; }
 
-; Download a file from a website and print the content (LWP::Simple is needed)
-alias lwp {
-  perl use LWP::Simple qw[get];print 'Your IP address: ' .get('http://www.whatismyip.com/automation/n09230945.asp')
-}
-
 ; Shows how to pass data to and from Perl when certain identifiers
 ; are not accessible such as $1-
 alias perl_strlen {
