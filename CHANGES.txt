@@ -10,7 +10,7 @@ Version 0.999.999 | Fri, 27 Nov 2009
     Internal/Behavioral Changes:
      * Use a custom PerlIO layer to redirect STDOUT/STDERR to mIRC signals
      * Removed hacky workarounds for mIRC's whitespace (mis)handling. I feel
-       this sort of thing is best left as an exersize for end users
+       this sort of thing is best left as an exercise for end users
 
     Documentation/Sample Code/Test Suite:
      * Minor changes to perl.mrc and Readme.txt to reflect new API changes and
@@ -18,7 +18,7 @@ Version 0.999.999 | Fri, 27 Nov 2009
 
     Notes:
      * This release is huge as it...
-       - removes all non-core dependancies :D
+       - removes all non-core dependencies :D
        - moves most of the Perl-based background stuff to quicker C-level stuff
      * The PerlIO stuff is... unstable. Use with care.
 
@@ -27,7 +27,7 @@ Version 0.999.999 | Fri, 27 Nov 2009
 Version 0.999.800 | Thu, 26 Jun 2009
 
     Internal/Behavioral Changes:
-     * Catches missing Win32::API dependancy and alerts user with MessageBox
+     * Catches missing Win32::API dependency and alerts user with MessageBox
 
 ---
 
