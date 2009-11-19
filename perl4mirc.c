@@ -314,7 +314,7 @@ extern "C"
     ) {
     dSP;
     I32 ax;
-    int count;
+    int count, i = 0;
     char * package;
     SV * CODE;
     /* ...what is this junk? Oh, it's...
@@ -350,7 +350,7 @@ extern "C"
                           "   *mIRC = *mIRC = %mIRC = $mIRC;\n"
                           "#line 1 mIRC_eval\n"
                           "%s\n"
-                          "}", package, data ), TRUE );//echo $perl(2+5)
+                          "}", package, data ), FALSE );
     if ( SvTRUE( ERRSV ) ) {
         warn( SvPVx_nolen ( ERRSV ) );
         return 0;
@@ -359,12 +359,16 @@ extern "C"
     SAVETMPS;
     PUSHMARK( SP );
     PUTBACK;
-    count = call_sv( CODE, G_SCALAR );
+    count = call_sv( CODE, G_SCALAR | G_EVAL );
     SPAGAIN;
     SP -= count;
     ax = ( SP - PL_stack_base ) + 1;
+    if ( SvTRUE( ERRSV ) ) {/* Check the eval first */
+        warn( SvPV_nolen( ERRSV ) );
+        i++;
+    }
     if ( count ) {
-        lstrcpy( data, SvPV_nolen( ST( 0 ) ) );
+        lstrcpy( data, SvPV_nolen( ST( i ) ) );
         PUTBACK;
         FREETMPS;
         LEAVE;
