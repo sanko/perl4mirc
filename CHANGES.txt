@@ -1,4 +1,11 @@
-Version 0.999.999 | Fri, 27 Nov 2009
+Version 1.000.001 | Sat, 21 Nov 2009
+
+    Documentation/Sample Code/Test Suite:
+     * Spell check and document evaluate(...) method
+
+---
+
+Version 1.000.000 | Fri, 20 Nov 2009
 
     API Changes/Compatibility Information:
      * The module that comes along with this package has been renamed

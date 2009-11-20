@@ -40,7 +40,7 @@ USAGE & EXAMPLES
         on *:SIGNAL:PERL_STDERR:if ($1 != $null) echo $color(info) -a $1-
 
     Instead of redirecting all IO to the status window, perl4mIRC redirects
-    everything to signals which can then be used anyway you see fit. The
+    everything to signals which can then be used any way you see fit. The
     defaults are reasonable but you can customize these if you're bored.
 
   Inline Snippets
@@ -88,6 +88,22 @@ USAGE & EXAMPLES
 
         ; directly
         /perl mIRC->echo("Mmmmm... Namespace hacking.");
+
+  mIRC Identifiers
+
+    To evaluate mIRC's internal identifiers, the current API provides an
+    evaluate(...) method. Usage is as follows:
+
+        ; quick access to the clipboard's contents
+        /perl my $clip = mIRC->evaluate('$cb')
+
+        ; prompt the user for information
+        /perl warn mIRC->evaluate('$?="This is a test"')
+
+    Please note that I haven't really smoothed the rough edges of this out and
+    may tweak it a little sometime in the future. This evaluate(...) method
+    will always work as it's currently documented, but there may be a better
+    way to interface this data in perl.
 
   Foo4mIRC: The Power of the CPAN
 
@@ -137,6 +153,10 @@ USAGE & EXAMPLES
     * Or directly by name as methods like so:
 
         /perl mIRC->echo("Yet another test.");
+
+    * Identifiers may be evaluated with the obviously named evaluate() method:
+
+        /perl printf 'You are using mIRC v%s', mIRC->id('$version')
 
 RELEASE INFORMATION
 
