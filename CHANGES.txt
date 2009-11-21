@@ -1,5 +1,9 @@
 Version 1.000.001 | Sat, 21 Nov 2009
 
+    Resolved Issues/Bug Fixes:
+     * Line number is now correct for embedded perl snippets parsed from msl
+       scripts
+
     Documentation/Sample Code/Test Suite:
      * Spell check and document evaluate(...) method
 

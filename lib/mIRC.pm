@@ -25,7 +25,8 @@
         my $package = 'mIRC::eval::' . int(rand(time));
         (undef, my $bad) = extract_codeblock $CODE, '(){}', '[^(]*';
         my $strCode = extract_codeblock $bad;
-        my $return = eval sprintf <<'EVAL', $package, $line, $file, $strCode;
+        my $return
+            = eval sprintf <<'EVAL', $package, $line + 1, $file, $strCode;
 {package %s;
 *mIRC       = *mIRC::mIRC;
 *eval_embed = *mIRC::eval_embed;
@@ -58,17 +59,17 @@ EVAL
 
     sub DELETE {
         my ($self, $key) = @_;
-        return mIRC->execute( '/unset %%' . $key );
+        return mIRC->execute('/unset %%' . $key);
     }
 
     sub STORE {
         my ($self, $key, $value) = @_;
-        return mIRC->execute( '/set -n %%' . $key . ' ' . $value );
+        return mIRC->execute('/set -n %%' . $key . ' ' . $value);
     }
 
     sub FETCH {
         my ($self, $key) = @_;
-        return mIRC->evaluate( '%' . $key );
+        return mIRC->evaluate('%' . $key);
     }
     1;
 }
