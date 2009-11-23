@@ -156,7 +156,7 @@ USAGE & EXAMPLES
 
     * Identifiers may be evaluated with the obviously named evaluate() method:
 
-        /perl printf 'You are using mIRC v%s', mIRC->id('$version')
+        /perl printf 'You are using mIRC v%s', mIRC->evaluate('$version')
 
 RELEASE INFORMATION
 
