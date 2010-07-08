@@ -1,3 +1,10 @@
+Version 1.5012001 | Fri, 09 Jul 2010
+
+    Documentation/Sample Code/Test Suite:
+     * Dist rebuilt for perl 5.12.x (finally)
+
+---
+
 Version 1.000.001 | Sat, 21 Nov 2009
 
     Resolved Issues/Bug Fixes:

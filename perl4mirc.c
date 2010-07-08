@@ -7,7 +7,7 @@
 #define NEED_sv_2pv_flags
 #include "patchlevel.h" /* for local_patches */
 
-const char * VERSION   = "1.000.001";
+const char * VERSION   = "1.5012001";
 static const char * NAMESPACE = "mIRC";
 
 #define BUFFER_SIZE  4096

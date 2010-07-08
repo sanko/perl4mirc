@@ -3,6 +3,7 @@
     package mIRC;
     use Text::Balanced qw[extract_codeblock];
     use Symbol qw[delete_package];
+    our $VERSION = 1.5012001;
 
     sub AUTOLOAD {
         no strict 'vars';

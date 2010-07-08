@@ -2,7 +2,19 @@ AUTHOR & WEBSITE
 
     The software provided was written by Sanko Robinson.
 
-    Please visit http://github.com/sanko/perl4mirc/ for updates.
+    perl4mIRC is a DLL for the mIRC chat client that allows a scripter to
+    execute Perl programs from mIRC's edit box and in mIRC's msl script
+    files.
+
+    The current version is 1.5012001 (for perl v5.12.x)
+
+    The current and previous versions may be found in
+    http://sankorobinson.com/perl4mirc/release/ and packages built for perl
+    v5.10.x are in http://sankorobinson.com/perl4mirc/release/perl-5.10.x/
+
+    Please watch http://github.com/sanko/perl4mirc/ for updates.
+
+    The official project page is http://sankorobinson.com/perl4mirc/
 
 DESCRIPTION
 
@@ -13,7 +25,7 @@ DESCRIPTION
 REQUIREMENTS
 
     any version of mIRC (developed on v6.35)
-    Perl (developed and built for v5.10.1)
+    Perl (developed and built for v5.12.1)
 
 INSTALLATION
 
