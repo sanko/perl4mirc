@@ -1,5 +1,4 @@
 {
-
     package mIRC;
     use Text::Balanced qw[extract_codeblock];
     use Symbol qw[delete_package];

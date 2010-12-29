@@ -63,7 +63,7 @@ mIRC_evaluate ( const char * variable ) {
            mData : "";
 }
 
-#ifdef PERLIO_LAYERS
+#ifdef PERLIO_LAYERS /* Layers available */
 
 #include "perliol.h"
 
@@ -155,7 +155,7 @@ PERLIO_FUNCS_DECL( PerlIO_mIRC ) = {
     NULL /* PerlIOmIRC_set_ptrcnt */
 };
 
-#endif /* Layers available */
+#endif /* PERLIO_LAYERS */
 
 int execute_perl( const char *function, char **args, char *data ) {
     int count = 0, i, ret_value = 1;
@@ -237,11 +237,11 @@ int __declspec( dllexport ) __stdcall LoadDll( LOADINFO * limIRC ) {
         PL_exit_flags |= PERL_EXIT_DESTRUCT_END;
         perl_run( my_perl );
         {
-#ifdef PERLIO_LAYERS
+#ifdef PERLIO_LAYERS /* Layers available */
             PerlIO_define_layer( aTHX_ PERLIO_FUNCS_CAST( &PerlIO_mIRC ) );
             PerlIO_apply_layers( aTHX_ PerlIO_stderr( ), NULL, ":mIRC" );
             PerlIO_apply_layers( aTHX_ PerlIO_stdout( ), NULL, ":mIRC" );
-#endif
+#endif /* PERLIO_LAYERS */
         }
         SV * result = eval_pv( form(
                                    "use FindBin;"                    /* CORE */
