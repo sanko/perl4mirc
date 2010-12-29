@@ -1,80 +1,242 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>
+      perl4mIRC - sankorobinson.com
+    </title>
+    <style type="text/css">
+/*<![CDATA[*/
+    span.alert {color:#F00}
+    /*]]>*/
+    </style>
+ <script type="text/javascript"> 
+//<![CDATA[
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-683755-2']);
+    _gaq.push(['_trackPageview']);
+ 
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    //]]>
+    </script> 
+  </head>
+  <body>
+    <div>
+      <pre>
+ABOUT
 
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  perl4mIRC is a DLL for the mIRC chat client that allows a scripter to
+  execute Perl programs from mIRC&#39;s edit box and in mIRC&#39;s msl script
+  files.
+</pre><img alt="Example usage" src=
+"http://sankorobinson.com/perl4mirc/JAMH.png" />
+<pre>
+  Current version is <a href=
+"https://github.com/downloads/sanko/perl4mirc/perl4mIRC-1.5012001.zip">1.5012001</a> (<span class="alert">for perl v5.12.x</span>) [<a href="http://github.com/sanko/perl4mirc/blob/master/CHANGES.txt">changelog</a>|<a href="http://github.com/sanko/perl4mirc/commits/master">commitlog</a>]
+  Previous versions may be found <a href="https://github.com/sanko/perl4mirc/downloads">on GitHub</a>.
+  DLLs built for perl v5.10.x are tagged as such.
 
-	<title>sanko/perl4mirc @ GitHub</title>
-	
-	<style type="text/css">
-		body {
-  		margin-top: 1.0em;
-  		background-color: #153d99;
-		  font-family: "helvetica"; 
-  		color: #ffffff;
-    }
-    #container {
-      margin: 0 auto;
-      width: 700px;
-    }
-		h1 { font-size: 3.8em; color: #eac266; margin-bottom: 3px; }
-		h1 .small { font-size: 0.4em; }
-		h1 a { text-decoration: none }
-		h2 { font-size: 1.5em; color: #eac266; }
-    h3 { text-align: center; color: #eac266; }
-    a { color: #eac266; }
-    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
-    .download { float: right; }
-		pre { background: #000; color: #fff; padding: 15px;}
-    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
-    .footer { text-align:center; padding-top:30px; font-style: italic; }
-	</style>
-	
-</head>
+  The repository is hosted by <a href=
+"http://github.com/sanko/perl4mirc/">GitHub</a> and you&#39;re invited to fork it.
 
-<body>
-  <a href="http://github.com/sanko/perl4mirc"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
-  
-  <div id="container">
+REQUIREMENTS
 
-    <div class="download">
-      <a href="http://github.com/sanko/perl4mirc/zipball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
-      <a href="http://github.com/sanko/perl4mirc/tarball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
+  any version of <a href=
+"http://www.mirc.co.uk">mIRC</a> (dev on v6.35)
+  <a href="http://perl.org">Perl</a> (dev and built for v5.12.1)
+
+INSTALLATION
+
+  To install this script and DLL, to copy the files in this package into a
+  mIRC&#39;s directory and type...
+
+    /load -rs C:\[path\to\mirc]\perl.mrc
+
+  ...to load the script file. This will run /perl_test to test the
+  installation.
+
+
+USAGE &amp; EXAMPLES
+
+    Use /perl &lt;perl syntax&gt; to execute Perl code. Several examples of this
+    and the embedded syntax are in perl.mrc. I&#39;ll explain some of the nifty
+    bits here...
+
+  STDOUT/STDERR
+
+    Somewhere near the top of perl.mrc, you should see the following lines:
+
+        ; Standard input/output handling
+        on *:SIGNAL:PERL_STDOUT:if ($1 != $null) echo -a $1-
+        on *:SIGNAL:PERL_STDERR:if ($1 != $null) echo $color(info) -a $1-
+
+    Instead of redirecting all IO to the status window, perl4mIRC redirects
+    everything to signals which can then be used any way you see fit. The
+    defaults are reasonable but you can customize these if you&#39;re bored.
+
+  Inline Snippets
+
+    Midway through perl.mrc, you come upon the following alias...
+
+        alias perl_list_modules {
+            if $($use_perl,2) {
+                my @modules;
+                for my $module(keys %INC) {
+                    if ($module =~ m[\.pm$]) {
+                        $module =~ s|/|::|g;
+                        $module =~ s|.pm$||;
+                    }
+                    push @modules, $module;
+                }
+                # Bring information back to mIRC in a var rather
+                # than using the mirc proc to /echo the results
+                mIRC-&gt;var(&#39;modules&#39;) = join(q[, ], sort {lc $a cmp lc $b} @modules);
+            }
+            echo -a Perl Modules: %modules
+            unset %modules
+        }
+
+    This bit of code pretty much summarizes the best of what perl4mIRC has to
+    offer.
+
+    The &#39;if $($use_perl,2) {&#39; line starts our embedded perl snippet which ends
+    with the matching closing brace. In this example, we are simply sifting
+    through the list of loaded modules but any amount of code could be in one
+    of these sections.
+
+    In this example, you&#39;ll also notice our use of the var() method from the
+    mIRC package. This method provides both read and write access to the
+    variables defined within mIRC. Here, instead of printing out the list in
+    perl, we hand it back to mIRC and echo the result from there.
+
+  mIRC Commands
+
+    To access mIRC&#39;s internal commands, you have two options. You man call
+    them with the execute() method or directly. Here&#39;s an example of each:
+
+        ; execute()
+        /perl mIRC-&gt;execute(&quot;/echo echo echo echo cho cho cho ho ho ho o o o&quot;);
+
+        ; directly
+        /perl mIRC-&gt;echo(&quot;Mmmmm... Namespace hacking.&quot;);
+
+  mIRC Identifiers
+
+    To evaluate mIRC&#39;s internal identifiers, the current API provides an
+    evaluate(...) method. Usage is as follows:
+
+        ; quick access to the clipboard&#39;s contents
+        /perl my $clip = mIRC-&gt;evaluate(&#39;$cb&#39;)
+
+        ; prompt the user for information
+        /perl warn mIRC-&gt;evaluate(&#39;$?=&quot;This is a test&quot;&#39;)
+
+    Please note that I haven&#39;t really smoothed the rough edges of this out and
+    may tweak it a little sometime in the future. This evaluate(...) method
+    will always work as it&#39;s currently documented, but there may be a better
+    way to interface this data in perl.
+
+  Foo4mIRC: The Power of the CPAN
+
+    At the very bottom, you&#39;ll see...
+
+        alias inlinec {
+            if $($use_perl,2) {
+                use Inline (C =&gt; &lt;&lt;&#39;&#39;);
+                int add(int x, int y)      { return x + y; }
+                int subtract(int x, int y) { return x - y; }
+
+                print &quot;9 + 16 = &quot; . add(9, 16) . &quot;\n&quot;;
+                print &quot;9 - 16 = &quot; . subtract(9, 16) . &quot;\n&quot;;
+            }
+        }
+
+    ...yep, C. Inside mIRC. For this example, you&#39;ll need the Inline::C module
+    which may be installed from the CPAN shell. This bit of awesome isn&#39;t
+    perl4mIRC-specific, but is a great example of how powerful perl itself is.
+
+    A quick search on CPAN will bring you to several Inline modules that
+    evaluate <a href=
+"http://search.cpan.org/dist/Inline-ASM">ASM</a>, <a href=
+"http://search.cpan.org/dist/Inline-Awk">Awk</a>, <a href=
+"http://search.cpan.org/dist/Inline-Basic">Basic</a>, <a href=
+"http://search.cpan.org/dist/Inline-CPP">C++</a>, <a href=
+"http://search.cpan.org/dist/Inline-Guile">Guile</a>, <a href=
+"http://search.cpan.org/dist/Inline-Java">Java</a>, <a href=
+"http://search.cpan.org/dist/Inline-Lua">Lua</a>, <a href=
+"http://search.cpan.org/dist/Inline-Python">Python</a>, <a href=
+"http://search.cpan.org/dist/Inline-Ruby">Ruby</a>, <a href=
+"http://search.cpan.org/dist/Inline-Tcl">Tcl</a>, and
+    <a href=
+"http://search.cpan.org/search?q=Inline">many other languages</a>. See <a href="http://search.cpan.org/search?q=Inline">http://search.cpan.org/search?q=Inline</a> for a
+    list of Inline modules.
+
+    Thanks to perl4mIRC and CPAN&#39;s library of awesome, you&#39;re really only
+    limited by your imagination.
+
+  Review
+
+    A few bullet points to review:
+
+    * You may access mIRC&#39;s variables with the var() method:
+
+        /perl warn mIRC-&gt;var(&#39;someval&#39;);
+
+    * You may even use the var() method as an lvalue to set the variables:
+
+        /perl mIRC-&gt;var(&#39;blahblah&#39;) = ucfirst reverse &#39;gnitset&#39;;
+
+    * All of mIRC&#39;s commands may be accessed via the execute() method:
+
+        /perl mIRC-&gt;execute(&quot;/echo This is a test&quot;);
+
+    * Or directly by name as methods like so:
+
+        /perl mIRC-&gt;echo(&quot;Yet another test.&quot;);
+
+    * Identifiers may be evaluated with the obviously named evaluate() method:
+
+        /perl printf &#39;You are using mIRC v%s&#39;, mIRC-&gt;evaluate(&#39;$version&#39;)
+
+RELEASE INFORMATION
+
+    See CHANGES.txt
+
+    For future updates, check <a href=
+"http://github.com/sanko/perl4mirc/">http://github.com/sanko/perl4mirc/</a> or the
+    project&#39;s website <a href=
+"http://sankorobinson.com/perl4mirc/">http://sankorobinson.com/perl4mirc/</a>.
+
+AUTHOR
+
+    The software provided was written by <a href=
+"http://sankorobinson.com/">Sanko Robinson</a>.
+
+LICENSES
+
+    Perl4mIRC is released under the Perl/Artistic license. See LICENSE.txt for
+    a very legalese definition of what I&#39;m talking about. To understand what
+    rights I claim to this code and how to handle derivative work, see the
+    <a href=
+"http://www.perlfoundation.org/artistic_2_0_notes">Artistic 2.0 Notes</a>.
+
+    All textual content is provided under the <a href=
+"http://creativecommons.org/licenses/by-sa/3.0/us/">Creative Commons Attribution-</a>
+    <a href=
+"http://creativecommons.org/licenses/by-sa/3.0/us/">Share Alike 3.0 United States License</a> as all documentation should.
+
+    Now that you&#39;re completely confused, you can ask me any time to clarify my
+    licensing choices.
+
+TRADEMARK NOTICES
+
+    mIRC is a registered trademark of mIRC Co. Ltd.
+</pre>
     </div>
-      
-    <h1><a href="http://github.com/sanko/perl4mirc">perl4mirc</a> 
-      <span class="small">by <a href="http://github.com/sanko">sanko</a></small></h1>
-
-    <div class="description">
-      Yo, dawg! We heard you like one liners so we put perl in your mIRC so you can write Perl while on IRC!
-    </div>
-
-    <h2>Authors</h2>
-<p>Sanko Robinson (sanko@cpan.org)<br/><br/>      </p>
-<h2>Contact</h2>
-<p>Sanko Robinson (sanko@cpan.org)<br/>      </p>
-
-
-    <h2>Download</h2>
-    <p>
-      You can download this project in either
-      <a href="http://github.com/sanko/perl4mirc/zipball/master">zip</a> or
-      <a href="http://github.com/sanko/perl4mirc/tarball/master">tar</a> formats.
-    </p>
-    <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
-      by running:
-      <pre>$ git clone git://github.com/sanko/perl4mirc</pre>
-    </p>
-      
-    <div class="footer">
-      get the source code on GitHub : <a href="http://github.com/sanko/perl4mirc">sanko/perl4mirc</a>
-    </div>
-    
-  </div>
-
-  
-</body>
+  </body>
 </html>
